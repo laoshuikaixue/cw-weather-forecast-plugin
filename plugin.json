@@ -1,0 +1,13 @@
+{
+    "name": "天气预报",
+    "description": "定时预报接下来三天及接下来三小时的天气。",
+    "version": "1.0.0",
+    "plugin_ver": 1,
+    "author": "LaoShui",
+    "settings": false,
+
+    "url": "https://github.com/laoshuikaixue/cw-weather-forecast-plugin",
+    "branch": "main",
+
+    "update_date": "2025/02/08"
+}
