@@ -8,7 +8,7 @@ from PyQt5.QtCore import QTimer
 
 from .ClassWidgets.base import PluginBase
 
-# 天气状态映射（保持篇原的大小写风格）
+# 天气状态映射表
 WEATHER_STATUS = {
     0: "晴", 1: "多云", 2: "阴", 3: "阵雨", 4: "雷阵雨",
     5: "雷阵雨并伴有冰雹", 6: "雨夹雪", 7: "小雨", 8: "中雨",
@@ -93,9 +93,9 @@ class Plugin(PluginBase):
             self.current_date = now.date()
 
         # 数据校验
-        if cw_contexts.get('Weather_api_name') != 'xiaomi_weather':
+        if cw_contexts.get('Weather_API') != 'xiaomi_weather':
             return
-        if not (weather_data := cw_contexts.get('Weather_data')):
+        if not (weather_data := cw_contexts.get('Weather_Data')):
             return
 
         # 数据处理
