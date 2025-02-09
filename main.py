@@ -1,4 +1,3 @@
-import json
 from collections import namedtuple
 from datetime import datetime
 from functools import partial
@@ -29,13 +28,8 @@ def get_weather_description(code: int) -> str:
     return WEATHER_STATUS.get(code, "未知")
 
 
-def parse_weather(json_data: str) -> Optional[WeatherData]:
+def parse_weather(data) -> Optional[WeatherData]:
     """解析天气数据，返回结构化对象"""
-    try:
-        data = json.loads(json_data)
-    except json.JSONDecodeError:
-        return None
-
     def get_daily_entries(values, template):
         """生成每日数据条目"""
         return [template.format(v['from'], v['to']) if i < len(values) else "N/A"
