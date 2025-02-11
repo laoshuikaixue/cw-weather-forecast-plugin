@@ -1,3 +1,4 @@
+import threading
 from collections import namedtuple
 from datetime import datetime
 from functools import partial
@@ -30,6 +31,7 @@ def get_weather_description(code: int) -> str:
 
 def parse_weather(data) -> Optional[WeatherData]:
     """解析天气数据，返回结构化对象"""
+
     def get_daily_entries(values, template):
         """生成每日数据条目"""
         return [template.format(v['from'], v['to']) if i < len(values) else "N/A"
@@ -97,11 +99,14 @@ class Plugin(PluginBase):
 
         # 触发通知时间点
         trigger_times = {'12:00:15', '16:05:30', '20:10:30'}
+        # 是否启用完整语音播报
+        full_speech = False
+
         if current_time in trigger_times and current_time not in self.notified_times:
-            self._schedule_notifications()
+            self._schedule_notifications(full_speech)
             self.notified_times.add(current_time)
 
-    def _schedule_notifications(self):
+    def _schedule_notifications(self, full_speech):
         """智能调度天气预报通知"""
         notifications = [
             (0, '天气预报', '', 5000),
@@ -115,11 +120,13 @@ class Plugin(PluginBase):
                 self._send_notification,
                 title=title,
                 content=content,
-                duration=duration
+                duration=duration,
+                full_speech=full_speech
             ))
 
-    def _send_notification(self, title: str, content: str, duration: int):
+    def _send_notification(self, title: str, content: str, duration: int, full_speech: bool):
         """统一通知发送方法"""
+        # 发送通知到主线程
         self.method.send_notification(
             state=4,
             title=title,
@@ -127,3 +134,22 @@ class Plugin(PluginBase):
             content=content,
             duration=duration
         )
+
+        # 创建音频播放线程
+        def audio_worker():
+            try:
+                if title == '天气预报':
+                    speech = self.method.generate_speech("天气预报", 'pyttsx3')
+                    self.method.play_audio(speech)
+                elif title in ['近三天温度', '近三天降雨概率', '接下来三小时天气'] and full_speech:
+                    speech = self.method.generate_speech(f"{title}：{content}")
+                    self.method.play_audio(speech)
+            except Exception as e:
+                print(f"音频播放失败: {str(e)}")
+
+        # 启动独立线程处理音频
+        audio_thread = threading.Thread(
+            target=audio_worker,
+            daemon=True  # 设置为守护线程防止程序无法退出
+        )
+        audio_thread.start()
