@@ -1,6 +1,6 @@
 {
     "name": "天气预报",
-    "description": "定时预报接下来三天及接下来三小时的天气。",
+    "description": "定时预报天气插件。",
     "version": "1.2.0",
     "plugin_ver": 2,
     "author": "LaoShui",
